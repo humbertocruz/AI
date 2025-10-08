@@ -9,12 +9,14 @@ enum TokenType {
     CloseParen,
     BinaryOperator,
     Let,
+    Const,
     EOF, // End Of File
 }
 
 // Mapeamento de palavras-chave para tipos de token
 const KEYWORDS: Record<string, TokenType> = {
     "let": TokenType.Let,
+    "const": TokenType.Const,
 };
 
 // Interface para representar um Token
@@ -140,24 +142,29 @@ export default class Parser {
     // Analisa as declarações (statements)
     private parse_stmt(): Statement {
         // Verifica se é uma declaração de variável
-        if (this.at().type === TokenType.Let) {
-            return this.parse_var_declaration();
+        switch (this.at().type) {
+            case TokenType.Let:
+            case TokenType.Const:
+                return this.parse_var_declaration();
+            default:
+                return this.parse_expr();
         }
-
-        return this.parse_expr();
     }
 
     private parse_var_declaration(): Statement {
-        this.eat(); // come o 'let'
-        const identifier = this.expect(TokenType.Identifier, "Esperado nome da variável após a palavra-chave 'let'.").value;
+        const isConstant = this.eat().type == TokenType.Const;
+        const identifier = this.expect(
+            TokenType.Identifier,
+            "Esperado nome da variável após a palavra-chave 'let' ou 'const'."
+        ).value;
 
         this.expect(TokenType.Equals, "Esperado sinal de igual após o nome da variável.");
 
         const declaration = {
             type: NodeType.VariableDeclaration,
             identifier,
+            constant: isConstant,
             value: this.parse_expr(),
-            constant: true, // por enquanto, todas as variáveis são constantes
         } as VariableDeclaration;
 
         return declaration;
