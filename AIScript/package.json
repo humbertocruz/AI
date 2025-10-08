@@ -1,0 +1,21 @@
+{
+  "name": "aiscript",
+  "version": "0.0.1",
+  "description": "A programming language optimized for AI models, based on TypeScript.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "ai",
+    "dsl",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.1"
+  }
+}
