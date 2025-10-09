@@ -1,17 +1,24 @@
-import Parser from './parser/parser';
-import Transpiler from './transpiler/transpiler';
-import * as fs from 'fs';
-import * as path from 'path';
+import Parser from './parser/parser.ts';
+import Transpiler from './transpiler/transpiler.ts';
+import * as fs from 'node:fs';
+import { join, resolve } from 'node:path';
 import * as tf from '@tensorflow/tfjs-node';
 
-function main() {
+async function main() {
     const args = process.argv.slice(2);
-    if (args.length !== 1) {
-        console.error("Uso: is <caminho_para_o_arquivo>");
+    if (args.length < 2) {
+        console.error("Uso: aiscript run <caminho_para_o_arquivo>");
         return;
     }
 
-    const filePath = path.resolve(args[0]);
+    const command = args[0];
+
+    if (command !== 'run') {
+        console.error(`Comando desconhecido '${command}'. Tente 'run'`);
+        return;
+    }
+
+    const filePath = resolve(args[1]);
 
     if (!fs.existsSync(filePath)) {
         console.error(`Erro: O arquivo não foi encontrado em '${filePath}'`);
@@ -25,8 +32,9 @@ function main() {
     const transpiler = new Transpiler();
     const tsCode = transpiler.transpile(ast);
 
-    // Executa o código transpilado
-    const tensor = (arg: any) => tf.tensor(arg);
+    // Injeta a função print no escopo global
+    const print = (...args: any[]) => console.log(...args);
+
     eval(tsCode);
 }
 

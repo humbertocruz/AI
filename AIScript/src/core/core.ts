@@ -7,6 +7,10 @@ export enum NodeType {
     CallExpression = "CallExpression",
     ArrayLiteral = "ArrayLiteral",
     MemberExpression = "MemberExpression",
+    IfStatement = "IfStatement",
+    BlockStatement = "BlockStatement",
+    WhileStatement = "WhileStatement",
+    AssignmentExpression = "AssignmentExpression",
 }
 
 export interface Statement {
@@ -25,7 +29,31 @@ export interface VariableDeclaration extends Statement {
     value?: Expression;
 }
 
+export interface IfStatement extends Statement {
+    type: NodeType.IfStatement;
+    condition: Expression;
+    consequence: BlockStatement;
+    alternate?: BlockStatement;
+}
+
+export interface WhileStatement extends Statement {
+    type: NodeType.WhileStatement;
+    condition: Expression;
+    body: BlockStatement;
+}
+
+export interface BlockStatement extends Statement {
+    type: NodeType.BlockStatement;
+    body: Statement[];
+}
+
 export interface Expression extends Statement {}
+
+export interface AssignmentExpression extends Expression {
+    type: NodeType.AssignmentExpression;
+    assigne: Expression;
+    value: Expression;
+}
 
 export interface MemberExpression extends Expression {
     type: NodeType.MemberExpression;

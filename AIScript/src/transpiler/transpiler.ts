@@ -1,4 +1,4 @@
-import { Program, Statement, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, NodeType, CallExpression, ArrayLiteral, MemberExpression } from "../core/core";
+import { Program, Statement, Expression, BinaryExpression, NumericLiteral, Identifier, VariableDeclaration, NodeType, CallExpression, ArrayLiteral, MemberExpression, IfStatement, BlockStatement, WhileStatement, AssignmentExpression } from "../core/core.ts";
 
 export default class Transpiler {
     public transpile(ast: Program): string {
@@ -13,6 +13,13 @@ export default class Transpiler {
         switch (statement.type) {
             case NodeType.VariableDeclaration:
                 return this.transpile_variable_declaration(statement as VariableDeclaration);
+            case NodeType.IfStatement:
+                return this.transpile_if_statement(statement as IfStatement);
+            case NodeType.WhileStatement:
+                return this.transpile_while_statement(statement as WhileStatement);
+            case NodeType.BlockStatement:
+                return this.transpile_block_statement(statement as BlockStatement);
+            case NodeType.AssignmentExpression:
             case NodeType.BinaryExpression:
             case NodeType.NumericLiteral:
             case NodeType.CallExpression:
@@ -22,6 +29,32 @@ export default class Transpiler {
                 console.error(`Tipo de declaração não suportado para transpilação: ${statement.type}`);
                 return "";
         }
+    }
+
+    private transpile_if_statement(statement: IfStatement): string {
+        const condition = this.transpile_expression(statement.condition);
+        const consequence = this.transpile_block_statement(statement.consequence as BlockStatement);
+        let alternate = "";
+        if (statement.alternate) {
+            alternate = ` else ${this.transpile_statement(statement.alternate)}`;
+        }
+        return `if (${condition}) ${consequence}${alternate}`;
+    }
+
+    private transpile_while_statement(statement: WhileStatement): string {
+        const condition = this.transpile_expression(statement.condition);
+        const body = this.transpile_block_statement(statement.body as BlockStatement);
+        return `while (${condition}) ${body}`;
+    }
+
+    private transpile_block_statement(block: BlockStatement): string {
+        let body = "";
+        for (const statement of block.body) {
+            body += this.transpile_statement(statement);
+        }
+        return `{
+${body}
+}`;
     }
 
     private transpile_variable_declaration(declaration: VariableDeclaration): string {
@@ -48,6 +81,11 @@ export default class Transpiler {
                     return `tf.matMul(${left}, ${right})`;
                 }
                 return `${left} ${binExpr.operator} ${right}`;
+            case NodeType.AssignmentExpression:
+                const assignment = expression as AssignmentExpression;
+                const assigne = this.transpile_expression(assignment.assigne);
+                const value = this.transpile_expression(assignment.value);
+                return `${assigne} = ${value}`;
             case NodeType.CallExpression:
                 const callExpr = expression as CallExpression;
                 const caller = this.transpile_expression(callExpr.caller);
