@@ -2,11 +2,12 @@ import Parser from './parser/parser';
 import Transpiler from './transpiler/transpiler';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as tf from '@tensorflow/tfjs-node';
 
 function main() {
     const args = process.argv.slice(2);
     if (args.length !== 1) {
-        console.error("Uso: aiscript <caminho_para_o_arquivo>");
+        console.error("Uso: is <caminho_para_o_arquivo>");
         return;
     }
 
@@ -25,6 +26,7 @@ function main() {
     const tsCode = transpiler.transpile(ast);
 
     // Executa o código transpilado
+    const tensor = (arg: any) => tf.tensor(arg);
     eval(tsCode);
 }
 

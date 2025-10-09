@@ -4,6 +4,9 @@ export enum NodeType {
     Identifier = "Identifier",
     BinaryExpression = "BinaryExpression",
     VariableDeclaration = "VariableDeclaration",
+    CallExpression = "CallExpression",
+    ArrayLiteral = "ArrayLiteral",
+    MemberExpression = "MemberExpression",
 }
 
 export interface Statement {
@@ -24,11 +27,24 @@ export interface VariableDeclaration extends Statement {
 
 export interface Expression extends Statement {}
 
+export interface MemberExpression extends Expression {
+    type: NodeType.MemberExpression;
+    object: Expression;
+    property: Expression;
+    computed: boolean;
+}
+
 export interface BinaryExpression extends Expression {
     type: NodeType.BinaryExpression;
     left: Expression;
     right: Expression;
     operator: string;
+}
+
+export interface CallExpression extends Expression {
+    type: NodeType.CallExpression;
+    caller: Expression;
+    args: Expression[];
 }
 
 export interface Identifier extends Expression {
@@ -39,4 +55,9 @@ export interface Identifier extends Expression {
 export interface NumericLiteral extends Expression {
     type: NodeType.NumericLiteral;
     value: number;
+}
+
+export interface ArrayLiteral extends Expression {
+    type: NodeType.ArrayLiteral;
+    elements: Expression[];
 }
